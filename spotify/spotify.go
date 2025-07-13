@@ -26,6 +26,8 @@ const (
 var accessToken string
 
 func Play(w http.ResponseWriter, r *http.Request) {
+	queries := r.URL.Query()
+	context_uri := queries.Get("context_uri")
 	type PlayOffset struct {
 		Position int    `json:"position,omitempty"` // 0-indexed position of the item in the context
 		URI      string `json:"uri,omitempty"`      // URI of the item to start at
@@ -55,6 +57,10 @@ func Play(w http.ResponseWriter, r *http.Request) {
 	// 	options.DeviceID = "" // Clear it from body if sending as query param
 	// }
 
+	payload := new(bytes.Buffer)
+	json.NewEncoder(payload).Encode(map[any]any{
+		"context_uri": context_uri,
+	})
 	req, err := http.NewRequest("PUT", "https://api.spotify.com/v1/me/player/play", bytes.NewBuffer([]byte{}))
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
